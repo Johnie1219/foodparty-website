@@ -1,5 +1,5 @@
 import type { CatalogProduct } from "@/lib/types";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, healthScoreFromNormalized, normalizePer100g } from "@/lib/format";
 
 export function CatalogProductCard({
   product,
@@ -10,6 +10,9 @@ export function CatalogProductCard({
   selected: boolean;
   onToggle: (p: CatalogProduct) => void;
 }) {
+  const normalized = normalizePer100g(product);
+  const score = normalized ? healthScoreFromNormalized(normalized) : null;
+
   return (
     <div
       className={`group flex flex-col overflow-hidden rounded-2xl border bg-white transition-all ${
@@ -49,6 +52,12 @@ export function CatalogProductCard({
       <div className="flex flex-1 flex-col gap-2 p-3">
         <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-700">{product.productName}</p>
         <p className="text-lg font-bold text-slate-900">{formatPrice(product.productPrice)}</p>
+
+        {score !== null && (
+          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
+            건강 점수 {score}점 (100g 기준)
+          </span>
+        )}
 
         <div className="mt-auto flex gap-2 pt-2">
           <button

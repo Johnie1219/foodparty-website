@@ -29,9 +29,13 @@ export async function PUT(
   }
 
   for (const field of NUMBER_FIELDS) {
-    if (typeof body[field] !== "number" || !Number.isFinite(body[field])) {
-      return NextResponse.json({ error: `${field} 값이 올바르지 않습니다.` }, { status: 400 });
+    const value = body[field];
+    if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
+      return NextResponse.json({ error: `${field} 값은 0 이상의 숫자여야 합니다.` }, { status: 400 });
     }
+  }
+  if (body.weight_g === 0) {
+    return NextResponse.json({ error: "weight_g 값은 0보다 커야 합니다." }, { status: 400 });
   }
 
   const input: NutritionInput = {

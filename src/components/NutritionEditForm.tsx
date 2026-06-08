@@ -80,6 +80,12 @@ export function NutritionEditForm({
         if (form[key].trim() === "" || !Number.isFinite(n)) {
           throw new Error("모든 영양성분 값은 숫자로 입력해야 합니다.");
         }
+        if (n < 0) {
+          throw new Error("영양성분 값은 0 이상이어야 합니다.");
+        }
+        if (key === "weightG" && n === 0) {
+          throw new Error("기준 중량은 0보다 커야 합니다.");
+        }
         numbers[key] = n;
       }
 
@@ -124,6 +130,7 @@ export function NutritionEditForm({
             <input
               type="number"
               step="any"
+              min={0}
               value={form[f.key]}
               onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
               className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-emerald-500"

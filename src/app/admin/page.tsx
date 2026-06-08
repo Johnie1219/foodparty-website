@@ -24,6 +24,7 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<number | "all" | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const loadAll = useCallback(async () => {
     setLoading(true);
@@ -99,6 +100,28 @@ export default function AdminPage() {
     setEditingId(null);
     setMessage(`"${updated.productName}" 영양성분이 저장되었습니다.`);
   };
+
+  const handleDelete = useCallback(async (product: CatalogProduct) => {
+    if (!window.confirm(`"${product.productName}" 상품을 목록에서 삭제할까요?`)) return;
+    setDeletingId(product.id);
+    setError(null);
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/products/${product.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "삭제에 실패했습니다.");
+      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      setCategories((prev) =>
+        prev.map((c) => (c.id === product.categoryId ? { ...c, productCount: c.productCount - 1 } : c))
+      );
+      setMessage(`"${product.productName}" 상품을 삭제했습니다.`);
+      if (editingId === product.id) setEditingId(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "오류가 발생했습니다.");
+    } finally {
+      setDeletingId(null);
+    }
+  }, [editingId]);
 
   const categoryName = (id: number) => categories.find((c) => c.id === id)?.name ?? "-";
 
@@ -212,6 +235,14 @@ export default function AdminPage() {
                       className="shrink-0 rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
                     >
                       {editingId === p.id ? "닫기" : "성분 입력"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deletingId === p.id}
+                      onClick={() => handleDelete(p)}
+                      className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-rose-500 transition-colors hover:bg-rose-50 disabled:opacity-50"
+                    >
+                      {deletingId === p.id ? "삭제 중…" : "삭제"}
                     </button>
                   </div>
                   {editingId === p.id && (

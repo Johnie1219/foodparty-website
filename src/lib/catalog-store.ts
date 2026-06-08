@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import type { CatalogProduct, Category, NormalizedNutrition } from "./types";
+import type { CatalogProduct, Category } from "./types";
 
 const DB_PATH = path.join(process.cwd(), "data", "catalog.json");
 
@@ -155,22 +155,11 @@ export function updateNutrition(id: number, input: NutritionInput): CatalogProdu
   return product;
 }
 
-/** 입력된 기준 중량(weightG)을 기준으로 100g당 값으로 정규화한다 */
-export function normalizePer100g(p: CatalogProduct): NormalizedNutrition | null {
-  if (!p.nutritionVerified || !p.weightG) return null;
-  const factor = 100 / p.weightG;
-  return {
-    calories: round(p.calories! * factor),
-    protein: round(p.protein! * factor),
-    fat: round(p.fat! * factor),
-    saturatedFat: round(p.saturatedFat! * factor),
-    carbs: round(p.carbs! * factor),
-    sugar: round(p.sugar! * factor),
-    fiber: round(p.fiber! * factor),
-    sodium: round(p.sodium! * factor),
-  };
-}
-
-function round(n: number): number {
-  return Math.round(n * 10) / 10;
+export function deleteProduct(id: number): boolean {
+  const db = readDB();
+  const before = db.products.length;
+  db.products = db.products.filter((p) => p.id !== id);
+  if (db.products.length === before) return false;
+  writeDB(db);
+  return true;
 }

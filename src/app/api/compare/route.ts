@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getProductsByIds, normalizePer100g } from "@/lib/catalog-store";
+import { getProductsByIds } from "@/lib/catalog-store";
+import { normalizePer100g } from "@/lib/format";
 import type { ComparisonProduct } from "@/lib/types";
 
 const MAX_COMPARE = 4;

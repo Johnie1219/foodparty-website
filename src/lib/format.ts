@@ -1,7 +1,27 @@
-import type { NormalizedNutrition } from "./types";
+import type { CatalogProduct, NormalizedNutrition } from "./types";
 
 export function formatPrice(won: number): string {
   return won.toLocaleString("ko-KR") + "원";
+}
+
+function round(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
+/** 입력된 기준 중량(weightG)을 기준으로 100g당 값으로 정규화한다 (영양성분 미입력 시 null) */
+export function normalizePer100g(p: CatalogProduct): NormalizedNutrition | null {
+  if (!p.nutritionVerified || !p.weightG) return null;
+  const factor = 100 / p.weightG;
+  return {
+    calories: round(p.calories! * factor),
+    protein: round(p.protein! * factor),
+    fat: round(p.fat! * factor),
+    saturatedFat: round(p.saturatedFat! * factor),
+    carbs: round(p.carbs! * factor),
+    sugar: round(p.sugar! * factor),
+    fiber: round(p.fiber! * factor),
+    sodium: round(p.sodium! * factor),
+  };
 }
 
 /** 100g당 정규화 영양성분으로 0~100 건강 점수를 산출한다 (단백질·식이섬유 가점, 당류·포화지방·나트륨·열량 감점) */

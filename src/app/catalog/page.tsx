@@ -34,6 +34,7 @@ export default function CatalogPage() {
   const [error, setError] = useState<string | null>(null);
   const [sort, setSort] = useState<SortOption>("default");
   const [rocketOnly, setRocketOnly] = useState(false);
+  const [keyword, setKeyword] = useState("");
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [comparison, setComparison] = useState<ComparisonProduct[] | null>(null);
@@ -46,6 +47,7 @@ export default function CatalogPage() {
     setComparison(null);
     setSort("default");
     setRocketOnly(false);
+    setKeyword("");
     try {
       const res = await fetch(`/api/products?category=${encodeURIComponent(categoryName)}`);
       const json = await res.json();
@@ -81,6 +83,11 @@ export default function CatalogPage() {
 
   const visibleProducts = (() => {
     let list = rocketOnly ? products.filter((p) => p.isRocket) : products;
+    const trimmed = keyword.trim();
+    if (trimmed) {
+      const needle = trimmed.replace(/\s+/g, "").toLowerCase();
+      list = list.filter((p) => p.productName.replace(/\s+/g, "").toLowerCase().includes(needle));
+    }
     if (sort === "priceAsc") list = [...list].sort((a, b) => a.productPrice - b.productPrice);
     else if (sort === "priceDesc") list = [...list].sort((a, b) => b.productPrice - a.productPrice);
     return list;
@@ -187,6 +194,13 @@ export default function CatalogPage() {
 
         {!loading && products.length > 0 && (
           <div className="mb-4 flex flex-wrap items-center gap-3">
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="상품명 검색"
+              className="w-44 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
             <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1">
               {(Object.keys(SORT_LABELS) as SortOption[]).map((opt) => (
                 <button
