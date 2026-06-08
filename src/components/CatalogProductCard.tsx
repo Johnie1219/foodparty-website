@@ -17,16 +17,16 @@ export function CatalogProductCard({
     <div
       className={`group flex flex-col overflow-hidden rounded-2xl border bg-white transition-all ${
         selected
-          ? "border-emerald-500 ring-2 ring-emerald-200"
-          : "border-slate-200 hover:border-slate-300 hover:shadow-md"
+          ? "border-[var(--color-primary)] ring-2 ring-blue-100"
+          : "border-[var(--color-hairline)] hover:border-[var(--color-ink-muted-48)]"
       }`}
     >
-      <div className="relative aspect-square overflow-hidden bg-slate-50">
+      <div className="relative aspect-square overflow-hidden bg-[var(--color-surface-pearl)]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={product.productImage}
           alt={product.productName}
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
+          className="shadow-product h-full w-full object-cover transition-transform group-hover:scale-105"
           loading="lazy"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src =
@@ -50,8 +50,8 @@ export function CatalogProductCard({
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-3">
-        <p className="line-clamp-2 min-h-[2.5rem] text-sm text-slate-700">{product.productName}</p>
-        <p className="text-lg font-bold text-slate-900">{formatPrice(product.productPrice)}</p>
+        <p className="line-clamp-2 min-h-[2.5rem] text-sm text-[var(--color-ink-muted-80)]">{product.productName}</p>
+        <p className="text-tagline text-[var(--color-ink)]">{formatPrice(product.productPrice)}</p>
 
         {score !== null && (
           <span className="inline-flex w-fit items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-200">
@@ -63,10 +63,10 @@ export function CatalogProductCard({
           <button
             type="button"
             onClick={() => onToggle(product)}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+            className={`flex-1 rounded-full px-3 py-2 text-sm font-semibold transition-all active:scale-95 ${
               selected
-                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-focus)]"
+                : "bg-[var(--color-canvas-parchment)] text-[var(--color-ink-muted-80)] hover:bg-slate-200"
             }`}
           >
             {selected ? "비교 담김 ✓" : "비교 담기"}
@@ -75,7 +75,7 @@ export function CatalogProductCard({
             href={product.productUrl}
             target="_blank"
             rel="noopener noreferrer sponsored"
-            className="flex-1 rounded-lg bg-rose-500 px-3 py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-rose-600"
+            className="flex-1 rounded-full bg-rose-500 px-3 py-2 text-center text-sm font-semibold text-white transition-all hover:bg-rose-600 active:scale-95"
           >
             쇼핑하기
           </a>

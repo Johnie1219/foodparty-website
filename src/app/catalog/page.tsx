@@ -129,26 +129,13 @@ export default function CatalogPage() {
   }, [selectedIds]);
 
   return (
-    <div className="min-h-full bg-slate-50 pb-32">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-10">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-3xl">🛒</span>
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-                헬스픽 카탈로그<span className="text-emerald-600">.</span>
-              </h1>
-            </div>
-            <nav className="flex gap-2 text-sm">
-              <Link href="/" className="rounded-lg px-3 py-1.5 text-slate-500 hover:text-emerald-700">
-                검색
-              </Link>
-              <Link href="/admin" className="rounded-lg px-3 py-1.5 text-slate-500 hover:text-emerald-700">
-                관리자
-              </Link>
-            </nav>
-          </div>
-          <p className="mt-2 max-w-xl text-slate-600">
+    <div className="min-h-full bg-[var(--color-canvas)] pb-32">
+      <section className="tile-section tile-parchment">
+        <div className="mx-auto max-w-6xl px-4">
+          <h1 className="text-display-lg text-[var(--color-ink)]">
+            헬스픽 카탈로그<span className="text-[var(--color-primary)]">.</span>
+          </h1>
+          <p className="text-body-ink mt-2 max-w-xl text-[var(--color-ink-muted-48)]">
             카테고리별 쿠팡 상품의 영양 성분을 한눈에 비교하고 더 건강한 선택을 해보세요.
           </p>
 
@@ -161,8 +148,8 @@ export default function CatalogPage() {
                 onClick={() => setActiveCategory(c.name)}
                 className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
                   activeCategory === c.name
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                    : "border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:text-emerald-700"
+                    ? "border-[var(--color-primary)] bg-white text-[var(--color-primary)]"
+                    : "border-[var(--color-hairline)] bg-white text-[var(--color-ink-muted-48)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                 }`}
               >
                 {c.name}
@@ -171,12 +158,12 @@ export default function CatalogPage() {
             ))}
           </div>
           {activeCategorySummary && (
-            <p className="mt-2 text-xs text-slate-400">{formatSyncedAt(activeCategorySummary.lastSyncedAt)}</p>
+            <p className="text-fine-print mt-2 text-[var(--color-ink-muted-48)]">{formatSyncedAt(activeCategorySummary.lastSyncedAt)}</p>
           )}
         </div>
-      </header>
+      </section>
 
-      <main className="mx-auto max-w-6xl px-4 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-12">
         {error && (
           <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
             {error}
@@ -185,7 +172,7 @@ export default function CatalogPage() {
 
         {comparison && comparison.length >= 2 && (
           <section ref={compareRef} className="mb-10">
-            <h2 className="mb-3 text-lg font-bold text-slate-900">
+            <h2 className="text-tagline mb-3 text-[var(--color-ink)]">
               영양 성분 비교 ({comparison.length})
             </h2>
             <CatalogComparisonTable products={comparison} onRemove={removeSelected} />
@@ -199,32 +186,32 @@ export default function CatalogPage() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="상품명 검색"
-              className="w-44 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              className="input-pill h-9 w-44 px-4 py-1.5 text-sm"
             />
-            <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1">
+            <div className="flex items-center gap-1.5 rounded-full border border-[var(--color-hairline)] bg-white p-1">
               {(Object.keys(SORT_LABELS) as SortOption[]).map((opt) => (
                 <button
                   key={opt}
                   type="button"
                   onClick={() => setSort(opt)}
-                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    sort === opt ? "bg-emerald-600 text-white" : "text-slate-500 hover:text-emerald-700"
+                  className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    sort === opt ? "bg-[var(--color-primary)] text-white" : "text-[var(--color-ink-muted-48)] hover:text-[var(--color-primary)]"
                   }`}
                 >
                   {SORT_LABELS[opt]}
                 </button>
               ))}
             </div>
-            <label className="flex cursor-pointer items-center gap-1.5 text-sm text-slate-600">
+            <label className="flex cursor-pointer items-center gap-1.5 text-sm text-[var(--color-ink-muted-80)]">
               <input
                 type="checkbox"
                 checked={rocketOnly}
                 onChange={(e) => setRocketOnly(e.target.checked)}
-                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                className="rounded border-[var(--color-hairline)] text-[var(--color-primary)] focus:ring-[var(--color-primary-focus)]"
               />
               로켓배송만 보기
             </label>
-            <span className="text-xs text-slate-400">{visibleProducts.length}개 상품</span>
+            <span className="text-fine-print text-[var(--color-ink-muted-48)]">{visibleProducts.length}개 상품</span>
           </div>
         )}
 
@@ -235,14 +222,14 @@ export default function CatalogPage() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center">
+          <div className="card-utility p-12 text-center">
             <p className="text-4xl">📦</p>
-            <p className="mt-3 text-slate-600">
-              아직 동기화된 상품이 없습니다. <Link href="/admin" className="font-semibold text-emerald-600 hover:underline">관리자 화면</Link>에서 쿠팡 동기화를 실행해보세요.
+            <p className="text-body-ink mt-3 text-[var(--color-ink-muted-48)]">
+              아직 동기화된 상품이 없습니다. <Link href="/admin" className="link-on-light font-semibold hover:underline">관리자 화면</Link>에서 쿠팡 동기화를 실행해보세요.
             </p>
           </div>
         ) : visibleProducts.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+          <div className="card-utility p-12 text-center text-[var(--color-ink-muted-48)]">
             조건에 맞는 상품이 없습니다.
           </div>
         ) : (
@@ -261,16 +248,16 @@ export default function CatalogPage() {
 
       {/* 하단 비교 트레이 */}
       {selectedIds.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur">
+        <div className="floating-sticky-bar fixed inset-x-0 bottom-0 z-20">
           <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-            <span className="shrink-0 text-sm text-slate-500">
+            <span className="shrink-0 text-sm text-[var(--color-ink-muted-48)]">
               {selectedIds.length}/{MAX_COMPARE} 선택됨
             </span>
             <div className="flex-1" />
             <button
               type="button"
               onClick={() => setSelectedIds([])}
-              className="shrink-0 rounded-lg px-3 py-2 text-sm text-slate-500 hover:text-slate-700"
+              className="shrink-0 rounded-lg px-3 py-2 text-sm text-[var(--color-ink-muted-48)] hover:text-[var(--color-ink)]"
             >
               비우기
             </button>
@@ -278,7 +265,7 @@ export default function CatalogPage() {
               type="button"
               disabled={selectedIds.length < 2 || compareLoading}
               onClick={runCompare}
-              className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+              className="btn-pill-primary shrink-0 px-4 py-2 text-sm disabled:opacity-50"
             >
               {compareLoading ? "비교 중…" : `${selectedIds.length}개 비교하기`}
             </button>

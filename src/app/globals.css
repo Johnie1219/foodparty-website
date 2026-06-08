@@ -1,19 +1,280 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand & accent */
+  --color-primary: #0066cc;
+  --color-primary-focus: #0071e3;
+  --color-primary-on-dark: #2997ff;
+
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-canvas-parchment: #f5f5f7;
+  --color-surface-pearl: #fafafc;
+  --color-surface-tile-1: #272729;
+  --color-surface-tile-2: #2a2a2c;
+  --color-surface-tile-3: #252527;
+  --color-surface-black: #000000;
+  --color-surface-chip-translucent: rgba(210, 210, 215, 0.64);
+
+  /* Text */
+  --color-ink: #1d1d1f;
+  --color-body-on-dark: #ffffff;
+  --color-body-muted: #cccccc;
+  --color-ink-muted-80: #333333;
+  --color-ink-muted-48: #7a7a7a;
+
+  /* Hairlines */
+  --color-divider-soft: rgba(0, 0, 0, 0.04);
+  --color-hairline: #e0e0e0;
+
+  /* Elevation */
+  --shadow-product: rgba(0, 0, 0, 0.22) 3px 5px 30px 0;
+
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------------
+ * Apple-inspired typography utilities (SF Pro proportions via Inter)
+ * ------------------------------------------------------------------- */
+
+.text-hero-display {
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.04em;
+}
+
+.text-display-lg {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.text-lead {
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0;
+}
+
+.text-tagline {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.19;
+}
+
+.text-body-ink {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.02em;
+}
+
+.text-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.016em;
+}
+
+.text-fine-print {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 640px) {
+  .text-hero-display {
+    font-size: 34px;
+    letter-spacing: -0.02em;
+  }
+  .text-display-lg {
+    font-size: 28px;
+  }
+}
+
+/* ---------------------------------------------------------------------
+ * Apple-inspired component primitives
+ * ------------------------------------------------------------------- */
+
+/** 단일 블루 액센트의 알약형 기본 CTA */
+.btn-pill-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  padding: 11px 22px;
+  transition: transform 0.15s ease;
+}
+.btn-pill-primary:active {
+  transform: scale(0.95);
+}
+.btn-pill-primary:focus-visible {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: 2px;
+}
+.btn-pill-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/** 고스트 알약 — 보조 CTA */
+.btn-pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  padding: 11px 22px;
+  transition: transform 0.15s ease;
+}
+.btn-pill-ghost:active {
+  transform: scale(0.95);
+}
+
+/** 다크 유틸리티 사각 버튼 (네비게이션 등) */
+.btn-dark-utility {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--color-ink);
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: -0.016em;
+  padding: 8px 15px;
+  transition: transform 0.15s ease;
+}
+.btn-dark-utility:active {
+  transform: scale(0.95);
+}
+
+/** 다크 타일 위 인라인 링크 */
+.link-on-dark {
+  color: var(--color-primary-on-dark);
+}
+.link-on-light {
+  color: var(--color-primary);
+}
+
+/** 풀-블리드 타일 공통 */
+.tile-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+@media (max-width: 640px) {
+  .tile-section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+}
+
+.tile-light {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+}
+.tile-parchment {
+  background: var(--color-canvas-parchment);
+  color: var(--color-ink);
+}
+.tile-dark {
+  background: var(--color-surface-tile-1);
+  color: #ffffff;
+}
+.tile-dark-2 {
+  background: var(--color-surface-tile-2);
+  color: #ffffff;
+}
+
+/** 제품 사진에만 허용되는 단 하나의 그림자 */
+.shadow-product {
+  box-shadow: var(--shadow-product);
+}
+
+/** 유틸리티 카드 (스토어/액세서리 그리드) */
+.card-utility {
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 18px;
+  padding: 24px;
+}
+
+/** 펄 캡슐 보조 버튼 */
+.btn-pearl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--color-surface-pearl);
+  color: var(--color-ink-muted-80);
+  border: 3px solid var(--color-divider-soft);
+  font-size: 14px;
+  padding: 8px 14px;
+}
+
+/** 검색 입력 — 알약형 */
+.input-pill {
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  padding: 12px 20px;
+  height: 44px;
+}
+.input-pill:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/** 글로벌 내비게이션 */
+.global-nav {
+  background: var(--color-surface-black);
+  color: #ffffff;
+  height: 44px;
+  font-size: 12px;
+  letter-spacing: -0.01em;
+}
+
+/** 프로스티드 서브 내비게이션 */
+.sub-nav-frosted {
+  background: rgba(245, 245, 247, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/** 떠 있는 하단 바 (비교 트레이 등) */
+.floating-sticky-bar {
+  background: rgba(245, 245, 247, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }

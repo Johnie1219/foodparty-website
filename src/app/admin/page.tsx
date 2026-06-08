@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import type { CatalogProduct, CategorySummary } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 import { NutritionEditForm } from "@/components/NutritionEditForm";
@@ -126,27 +125,17 @@ export default function AdminPage() {
   const categoryName = (id: number) => categories.find((c) => c.id === id)?.name ?? "-";
 
   return (
-    <div className="min-h-full bg-slate-50 pb-16">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          <div className="flex items-center justify-between gap-2">
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-              관리자<span className="text-emerald-600">.</span>
-            </h1>
-            <nav className="flex gap-2 text-sm">
-              <Link href="/catalog" className="rounded-lg px-3 py-1.5 text-slate-500 hover:text-emerald-700">
-                카탈로그
-              </Link>
-              <Link href="/" className="rounded-lg px-3 py-1.5 text-slate-500 hover:text-emerald-700">
-                검색
-              </Link>
-            </nav>
-          </div>
-          <p className="mt-2 text-slate-600">
+    <div className="min-h-full bg-[var(--color-canvas)] pb-16">
+      <section className="tile-section tile-light pb-10">
+        <div className="mx-auto max-w-6xl px-4">
+          <h1 className="text-display-lg text-[var(--color-ink)]">
+            관리자<span className="text-[var(--color-primary)]">.</span>
+          </h1>
+          <p className="text-body-ink mt-2 text-[var(--color-ink-muted-48)]">
             카테고리별 쿠팡 동기화 및 영양 성분 직접 입력을 관리합니다.
           </p>
         </div>
-      </header>
+      </section>
 
       <main className="mx-auto max-w-6xl px-4 py-8 space-y-8">
         {message && (
@@ -162,7 +151,7 @@ export default function AdminPage() {
 
         {/* 동기화 */}
         <section>
-          <h2 className="mb-3 text-lg font-bold text-slate-900">쿠팡 동기화</h2>
+          <h2 className="text-tagline mb-3 text-[var(--color-ink)]">쿠팡 동기화</h2>
           <div className="flex flex-wrap gap-2">
             {categories.map((c) => (
               <button
@@ -170,12 +159,12 @@ export default function AdminPage() {
                 type="button"
                 disabled={syncingId !== null}
                 onClick={() => syncCategory(c)}
-                className="flex flex-col items-start rounded-lg border border-slate-300 bg-white px-4 py-2 text-left transition-colors hover:border-emerald-400 disabled:opacity-50"
+                className="card-utility flex flex-col items-start px-4 py-2 text-left transition-colors hover:border-[var(--color-primary)] disabled:opacity-50"
               >
-                <span className="text-sm font-semibold text-slate-700">
+                <span className="text-sm font-semibold text-[var(--color-ink)]">
                   {syncingId === c.id ? "동기화 중…" : `${c.name} 동기화`}
                 </span>
-                <span className="text-xs text-slate-400">
+                <span className="text-fine-print text-[var(--color-ink-muted-48)]">
                   상품 {c.productCount}개 · {formatSyncedAt(c.lastSyncedAt)}
                 </span>
               </button>
@@ -184,7 +173,7 @@ export default function AdminPage() {
               type="button"
               disabled={syncingId !== null}
               onClick={syncAll}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+              className="btn-pill-primary"
             >
               {syncingId === "all" ? "전체 동기화 중…" : "전체 동기화"}
             </button>
@@ -193,8 +182,8 @@ export default function AdminPage() {
 
         {/* 상품 목록 */}
         <section>
-          <h2 className="mb-3 text-lg font-bold text-slate-900">
-            상품 목록 {!loading && <span className="font-normal text-slate-400">({products.length}개 · 영양성분 미입력 상품 우선 정렬)</span>}
+          <h2 className="text-tagline mb-3 text-[var(--color-ink)]">
+            상품 목록 {!loading && <span className="text-body-ink font-normal text-[var(--color-ink-muted-48)]">({products.length}개 · 영양성분 미입력 상품 우선 정렬)</span>}
           </h2>
 
           {loading ? (
@@ -204,19 +193,19 @@ export default function AdminPage() {
               ))}
             </div>
           ) : products.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+            <div className="card-utility p-12 text-center text-[var(--color-ink-muted-48)]">
               동기화된 상품이 없습니다. 위 버튼으로 카테고리를 동기화해보세요.
             </div>
           ) : (
             <div className="space-y-2">
               {products.map((p) => (
-                <div key={p.id} className="rounded-xl border border-slate-200 bg-white">
+                <div key={p.id} className="card-utility p-0 overflow-hidden">
                   <div className="flex flex-wrap items-center gap-3 p-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={p.productImage} alt="" className="h-12 w-12 shrink-0 rounded-lg object-cover" />
                     <div className="min-w-[160px] flex-1">
-                      <p className="line-clamp-1 text-sm font-medium text-slate-800">{p.productName}</p>
-                      <p className="text-xs text-slate-400">
+                      <p className="line-clamp-1 text-sm font-medium text-[var(--color-ink)]">{p.productName}</p>
+                      <p className="text-fine-print text-[var(--color-ink-muted-48)]">
                         {categoryName(p.categoryId)} · {formatPrice(p.productPrice)}
                       </p>
                     </div>
@@ -232,7 +221,7 @@ export default function AdminPage() {
                     <button
                       type="button"
                       onClick={() => setEditingId(editingId === p.id ? null : p.id)}
-                      className="shrink-0 rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200"
+                      className="btn-pill-ghost shrink-0 px-3 py-1.5 text-sm"
                     >
                       {editingId === p.id ? "닫기" : "성분 입력"}
                     </button>
@@ -246,7 +235,7 @@ export default function AdminPage() {
                     </button>
                   </div>
                   {editingId === p.id && (
-                    <div className="border-t border-slate-100 p-3">
+                    <div className="border-t border-[var(--color-hairline)] p-3">
                       <NutritionEditForm
                         product={p}
                         onSaved={handleSaved}

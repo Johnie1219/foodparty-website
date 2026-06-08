@@ -47,20 +47,20 @@ export function CatalogComparisonTable({
   return (
     <div className="space-y-4">
       {winner && (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-sm text-emerald-700">🏆 영양 균형이 가장 좋은 선택 (100g 기준 추정)</p>
-          <p className="mt-1 text-lg font-bold text-emerald-900">{winner.product.productName}</p>
-          <p className="mt-0.5 text-sm text-emerald-700">
+        <div className="card-utility border-[var(--color-primary)] bg-blue-50/40 p-4">
+          <p className="text-sm text-[var(--color-primary)]">🏆 영양 균형이 가장 좋은 선택 (100g 기준 추정)</p>
+          <p className="mt-1 text-tagline text-[var(--color-ink)]">{winner.product.productName}</p>
+          <p className="mt-0.5 text-sm text-[var(--color-primary)]">
             건강 점수 {winner.score}점 · {formatPrice(winner.product.productPrice)}
           </p>
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--color-hairline)] bg-white">
         <table className="w-full min-w-[560px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-slate-200">
-              <th className="sticky left-0 z-10 bg-slate-50 p-3 text-left font-medium text-slate-500">
+            <tr className="border-b border-[var(--color-hairline)]">
+              <th className="sticky left-0 z-10 bg-[var(--color-surface-pearl)] p-3 text-left font-medium text-[var(--color-ink-muted-48)]">
                 항목
               </th>
               {products.map((p) => (
@@ -72,13 +72,13 @@ export function CatalogComparisonTable({
                       alt={p.productName}
                       className="h-16 w-16 rounded-lg object-cover"
                     />
-                    <span className="line-clamp-2 text-center text-xs font-normal text-slate-600">
+                    <span className="line-clamp-2 text-center text-xs font-normal text-[var(--color-ink-muted-48)]">
                       {p.productName}
                     </span>
                     <button
                       type="button"
                       onClick={() => onRemove(p.id)}
-                      className="text-xs text-slate-400 hover:text-rose-500"
+                      className="text-xs text-[var(--color-ink-muted-48)] hover:text-rose-500"
                     >
                       제거
                     </button>
@@ -88,16 +88,16 @@ export function CatalogComparisonTable({
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b border-slate-100">
-              <td className="sticky left-0 z-10 bg-white p-3 font-medium text-slate-500">가격</td>
+            <tr className="border-b border-[var(--color-hairline)]">
+              <td className="sticky left-0 z-10 bg-white p-3 font-medium text-[var(--color-ink-muted-48)]">가격</td>
               {products.map((p) => (
-                <td key={p.id} className="p-3 text-center font-semibold text-slate-900">
+                <td key={p.id} className="p-3 text-center font-semibold text-[var(--color-ink)]">
                   {formatPrice(p.productPrice)}
                 </td>
               ))}
             </tr>
 
-            <tr className="border-b border-slate-100">
+            <tr className="border-b border-[var(--color-hairline)]">
               <td className="sticky left-0 z-10 bg-white p-3" />
               {products.map((p) => (
                 <td key={p.id} className="p-3 text-center">
@@ -105,7 +105,7 @@ export function CatalogComparisonTable({
                     href={p.productUrl}
                     target="_blank"
                     rel="noopener noreferrer sponsored"
-                    className="inline-block rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-rose-600"
+                    className="inline-block rounded-full bg-rose-500 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-rose-600 active:scale-95"
                   >
                     쿠팡에서 구매
                   </a>
@@ -113,15 +113,15 @@ export function CatalogComparisonTable({
               ))}
             </tr>
 
-            <tr className="border-b border-slate-100 bg-slate-50/60">
-              <td colSpan={products.length + 1} className="p-2 px-3 text-xs font-semibold text-slate-500">
+            <tr className="border-b border-[var(--color-hairline)] bg-[var(--color-surface-pearl)]">
+              <td colSpan={products.length + 1} className="p-2 px-3 text-xs font-semibold text-[var(--color-ink-muted-48)]">
                 영양 성분 (100g당 정규화)
               </td>
             </tr>
 
             {METRICS.map((m) => (
-              <tr key={m.key} className="border-b border-slate-100 last:border-0">
-                <td className="sticky left-0 z-10 bg-white p-3 font-medium text-slate-500">
+              <tr key={m.key} className="border-b border-[var(--color-hairline)] last:border-0">
+                <td className="sticky left-0 z-10 bg-white p-3 font-medium text-[var(--color-ink-muted-48)]">
                   {m.label}
                 </td>
                 {products.map((p) => {
@@ -134,11 +134,11 @@ export function CatalogComparisonTable({
                     <td
                       key={p.id}
                       className={`p-3 text-center ${
-                        isBest ? "font-bold text-emerald-700" : "text-slate-700"
+                        isBest ? "font-bold text-emerald-700" : "text-[var(--color-ink-muted-80)]"
                       }`}
                     >
                       {v === undefined ? (
-                        <span className="text-slate-300">-</span>
+                        <span className="text-[var(--color-hairline)]">-</span>
                       ) : (
                         <span className="inline-flex items-center gap-1">
                           {v}
@@ -152,19 +152,19 @@ export function CatalogComparisonTable({
               </tr>
             ))}
 
-            <tr className="border-b border-slate-100">
-              <td className="sticky left-0 z-10 bg-white p-3 align-top font-medium text-slate-500">
+            <tr className="border-b border-[var(--color-hairline)]">
+              <td className="sticky left-0 z-10 bg-white p-3 align-top font-medium text-[var(--color-ink-muted-48)]">
                 원재료명
               </td>
               {products.map((p) => (
-                <td key={p.id} className="p-3 text-center align-top text-xs text-slate-600">
-                  {p.ingredients ? p.ingredients : <span className="text-slate-300">-</span>}
+                <td key={p.id} className="p-3 text-center align-top text-xs text-[var(--color-ink-muted-80)]">
+                  {p.ingredients ? p.ingredients : <span className="text-[var(--color-hairline)]">-</span>}
                 </td>
               ))}
             </tr>
 
             <tr>
-              <td className="sticky left-0 z-10 bg-white p-3 align-top font-medium text-slate-500">
+              <td className="sticky left-0 z-10 bg-white p-3 align-top font-medium text-[var(--color-ink-muted-48)]">
                 특징
               </td>
               {products.map((p) => (
@@ -181,7 +181,7 @@ export function CatalogComparisonTable({
                       ))}
                     </div>
                   ) : (
-                    <span className="text-slate-300">-</span>
+                    <span className="text-[var(--color-hairline)]">-</span>
                   )}
                 </td>
               ))}
@@ -189,7 +189,7 @@ export function CatalogComparisonTable({
           </tbody>
         </table>
       </div>
-      <p className="text-xs text-slate-400">
+      <p className="text-fine-print text-[var(--color-ink-muted-48)]">
         ※ 영양 성분이 입력되지 않은 상품은 &ldquo;-&rdquo;로 표시됩니다. 초록색 강조는 단백질·식이섬유는 최댓값,
         나트륨·당류·포화지방은 최솟값을 의미합니다.
       </p>
