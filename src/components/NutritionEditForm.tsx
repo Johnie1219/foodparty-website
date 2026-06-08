@@ -64,15 +64,8 @@ export function NutritionEditForm({
     setError(null);
     try {
       const numericFields: (keyof FormState)[] = [
-        "weightG",
-        "calories",
-        "protein",
-        "fat",
-        "saturatedFat",
-        "carbs",
-        "sugar",
-        "fiber",
-        "sodium",
+        "weightG", "calories", "protein", "fat", "saturatedFat",
+        "carbs", "sugar", "fiber", "sodium",
       ];
       const numbers: Record<string, number> = {};
       for (const key of numericFields) {
@@ -80,12 +73,8 @@ export function NutritionEditForm({
         if (form[key].trim() === "" || !Number.isFinite(n)) {
           throw new Error("모든 영양성분 값은 숫자로 입력해야 합니다.");
         }
-        if (n < 0) {
-          throw new Error("영양성분 값은 0 이상이어야 합니다.");
-        }
-        if (key === "weightG" && n === 0) {
-          throw new Error("기준 중량은 0보다 커야 합니다.");
-        }
+        if (n < 0) throw new Error("영양성분 값은 0 이상이어야 합니다.");
+        if (key === "weightG" && n === 0) throw new Error("기준 중량은 0보다 커야 합니다.");
         numbers[key] = n;
       }
 
@@ -100,10 +89,7 @@ export function NutritionEditForm({
         fiber: numbers.fiber,
         sodium: numbers.sodium,
         ingredients: form.ingredients.trim(),
-        key_features: form.keyFeatures
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
+        key_features: form.keyFeatures.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
       const res = await fetch(`/api/products/${product.id}/nutrition`, {
@@ -121,11 +107,17 @@ export function NutritionEditForm({
     }
   };
 
+  const inputCls =
+    "rounded-lg border border-[var(--color-hairline)] bg-white px-2 py-1.5 text-sm text-[var(--color-ink)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-blue-100";
+
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+    <form
+      onSubmit={handleSubmit}
+      className="rounded-2xl border border-[var(--color-hairline)] bg-[var(--color-surface-pearl)] p-4"
+    >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {FIELDS.map((f) => (
-          <label key={f.key} className="flex flex-col gap-1 text-xs text-slate-600">
+          <label key={f.key} className="flex flex-col gap-1 text-xs text-[var(--color-ink-muted-48)]">
             {f.label} ({f.unit})
             <input
               type="number"
@@ -133,29 +125,29 @@ export function NutritionEditForm({
               min={0}
               value={form[f.key]}
               onChange={(e) => setForm((s) => ({ ...s, [f.key]: e.target.value }))}
-              className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-emerald-500"
+              className={inputCls}
             />
           </label>
         ))}
       </div>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-xs text-slate-600">
+        <label className="flex flex-col gap-1 text-xs text-[var(--color-ink-muted-48)]">
           원재료명
           <textarea
             value={form.ingredients}
             onChange={(e) => setForm((s) => ({ ...s, ingredients: e.target.value }))}
             rows={2}
-            className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-emerald-500"
+            className={inputCls}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-slate-600">
+        <label className="flex flex-col gap-1 text-xs text-[var(--color-ink-muted-48)]">
           특징 태그 (쉼표로 구분)
           <input
             type="text"
             value={form.keyFeatures}
             onChange={(e) => setForm((s) => ({ ...s, keyFeatures: e.target.value }))}
             placeholder="예: 무첨가, 저당, 고단백"
-            className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-emerald-500"
+            className={inputCls}
           />
         </label>
       </div>
@@ -166,14 +158,14 @@ export function NutritionEditForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg px-4 py-2 text-sm text-slate-500 hover:text-slate-700"
+          className="rounded-full px-4 py-2 text-sm text-[var(--color-ink-muted-48)] hover:text-[var(--color-ink)] transition-colors"
         >
           취소
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+          className="btn-pill-primary px-4 py-2 text-sm disabled:opacity-60"
         >
           {saving ? "저장 중…" : "저장"}
         </button>

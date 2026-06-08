@@ -278,3 +278,51 @@ body {
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
+
+/* ---------------------------------------------------------------------
+ * 반응형 보강
+ * ------------------------------------------------------------------- */
+
+/** 480px 이하 — 모바일 최소 */
+@media (max-width: 480px) {
+  .text-lead {
+    font-size: 20px;
+  }
+  .text-tagline {
+    font-size: 17px;
+  }
+  .btn-pill-primary,
+  .btn-pill-ghost {
+    font-size: 15px;
+    padding: 10px 18px;
+  }
+  .input-pill {
+    font-size: 15px;
+  }
+  .tile-section {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+}
+
+/** 스크롤바 스타일 (WebKit) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted-48);
+}
+
+/** 포커스 링 — Apple 스타일 파란색 */
+:focus-visible {
+  outline: 2px solid var(--color-primary-focus);
+  outline-offset: 2px;
+}

@@ -100,6 +100,50 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 기능 소개 다크 타일 — 검색 결과 없을 때만 표시 */}
+      {!result && !loading && !error && (
+        <section className="tile-section tile-dark">
+          <div className="mx-auto max-w-6xl px-4">
+            <h2 className="text-display-lg text-white">
+              헬스픽이 하는 일
+            </h2>
+            <p className="text-body-ink mt-3 max-w-lg text-[var(--color-body-muted)]">
+              쿠팡 파트너스 API로 실시간 상품을 가져와 영양 성분을 한 화면에 나란히 비교합니다.
+            </p>
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {[
+                { icon: "🔍", title: "실시간 검색", desc: "쿠팡 전체 상품 중 원하는 음식을 즉시 검색합니다." },
+                { icon: "⚖️", title: "영양 비교", desc: "최대 4개 상품의 열량·단백질·당류 등을 나란히 비교합니다." },
+                { icon: "🏆", title: "건강 점수", desc: "100g 기준 영양 균형 점수로 더 나은 선택을 안내합니다." },
+              ].map((f) => (
+                <div key={f.title} className="rounded-2xl bg-[var(--color-surface-tile-2)] p-6">
+                  <p className="text-3xl">{f.icon}</p>
+                  <p className="text-tagline mt-3 text-white">{f.title}</p>
+                  <p className="text-caption mt-2 text-[var(--color-body-muted)]">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 카탈로그 CTA 파치먼트 타일 — 검색 결과 없을 때만 표시 */}
+      {!result && !loading && !error && (
+        <section className="tile-section tile-parchment text-center">
+          <div className="mx-auto max-w-xl px-4">
+            <h2 className="text-display-lg text-[var(--color-ink)]">
+              카테고리별로 찾아보기
+            </h2>
+            <p className="text-body-ink mt-3 text-[var(--color-ink-muted-48)]">
+              올리브오일, 그릭요거트, 귀리우유, 아몬드버터, 프로틴바 — 카탈로그에서 카테고리별 비교를 시작하세요.
+            </p>
+            <a href="/catalog" className="btn-pill-primary mt-8 inline-flex">
+              카탈로그 보기
+            </a>
+          </div>
+        </section>
+      )}
+
       <main className="mx-auto max-w-6xl px-4 py-12">
         {result && !result.live && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -116,7 +160,7 @@ export default function Home() {
         {/* 비교 결과 */}
         {selected.length >= 2 && (
           <section ref={compareRef} className="mb-10">
-            <h2 className="mb-3 text-lg font-bold text-slate-900">
+            <h2 className="text-tagline mb-3 text-[var(--color-ink)]">
               영양 성분 비교 ({selected.length})
             </h2>
             <ComparisonTable products={selected} onRemove={removeSelected} />

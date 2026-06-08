@@ -9,7 +9,7 @@ export function HealthScoreBadge({
 }) {
   if (score === null) {
     return (
-      <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-500">
+      <span className="inline-flex items-center rounded-full bg-[var(--color-surface-pearl)] px-2.5 py-1 text-xs font-medium text-[var(--color-ink-muted-48)]">
         영양정보 없음
       </span>
     );
