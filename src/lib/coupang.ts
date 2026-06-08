@@ -57,8 +57,8 @@ interface CoupangApiItem {
   isFreeShipping: boolean;
 }
 
-/** 실시간 쿠팡 검색 */
-async function liveSearch(keyword: string, limit: number): Promise<Product[]> {
+/** 쿠팡 파트너스 Search API 호출 (서명/요청 공통 로직) */
+async function fetchCoupangSearch(keyword: string, limit: number): Promise<CoupangApiItem[]> {
   const subId = process.env.COUPANG_SUB_ID;
   const params = new URLSearchParams({ keyword, limit: String(limit) });
   if (subId) params.set("subId", subId);
@@ -76,8 +76,41 @@ async function liveSearch(keyword: string, limit: number): Promise<Product[]> {
   }
 
   const json = (await res.json()) as { data?: { productData?: CoupangApiItem[] } };
-  const items = json.data?.productData ?? [];
+  return json.data?.productData ?? [];
+}
+
+/** 실시간 쿠팡 검색 (영양정보 매칭 포함, 자유 검색용) */
+async function liveSearch(keyword: string, limit: number): Promise<Product[]> {
+  const items = await fetchCoupangSearch(keyword, limit);
   return items.map(toProduct);
+}
+
+export interface SyncedCoupangItem {
+  productName: string;
+  productPrice: number;
+  productImage: string;
+  productUrl: string;
+  isRocket: boolean;
+  isFreeShipping: boolean;
+}
+
+/**
+ * 카테고리 동기화용 검색. 영양성분은 쿠팡 API 응답에 없으므로 매칭하지 않고
+ * 그대로 DB upsert 가능한 형태로 반환한다 (영양성분은 null로 저장됨).
+ */
+export async function syncSearch(keyword: string, limit: number): Promise<SyncedCoupangItem[]> {
+  if (!hasCoupangKeys()) {
+    throw new Error("쿠팡 파트너스 API 키(COUPANG_ACCESS_KEY/COUPANG_SECRET_KEY)가 설정되지 않았습니다.");
+  }
+  const items = await fetchCoupangSearch(keyword, limit);
+  return items.map((item) => ({
+    productName: item.productName,
+    productPrice: item.productPrice,
+    productImage: item.productImage,
+    productUrl: item.productUrl,
+    isRocket: item.isRocket,
+    isFreeShipping: item.isFreeShipping,
+  }));
 }
 
 function toProduct(item: CoupangApiItem): Product {

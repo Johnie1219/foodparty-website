@@ -20,6 +20,9 @@
 # production
 /build
 
+# runtime data (catalog DB, synced via /api/sync)
+/data/
+
 # misc
 .DS_Store
 *.pem
