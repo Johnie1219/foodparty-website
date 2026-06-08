@@ -2,12 +2,22 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import type { CatalogProduct, Category } from "@/lib/types";
+import type { CatalogProduct, CategorySummary } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 import { NutritionEditForm } from "@/components/NutritionEditForm";
 
+function formatSyncedAt(iso: string | null): string {
+  if (!iso) return "동기화 기록 없음";
+  return new Date(iso).toLocaleString("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function AdminPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategorySummary[]>([]);
   const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -36,7 +46,7 @@ export default function AdminPage() {
   }, [loadAll]);
 
   const syncCategory = useCallback(
-    async (category: Category) => {
+    async (category: CategorySummary) => {
       setSyncingId(category.id);
       setError(null);
       setMessage(null);
@@ -137,9 +147,14 @@ export default function AdminPage() {
                 type="button"
                 disabled={syncingId !== null}
                 onClick={() => syncCategory(c)}
-                className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50"
+                className="flex flex-col items-start rounded-lg border border-slate-300 bg-white px-4 py-2 text-left transition-colors hover:border-emerald-400 disabled:opacity-50"
               >
-                {syncingId === c.id ? "동기화 중…" : `${c.name} 동기화`}
+                <span className="text-sm font-semibold text-slate-700">
+                  {syncingId === c.id ? "동기화 중…" : `${c.name} 동기화`}
+                </span>
+                <span className="text-xs text-slate-400">
+                  상품 {c.productCount}개 · {formatSyncedAt(c.lastSyncedAt)}
+                </span>
               </button>
             ))}
             <button

@@ -4,10 +4,20 @@
 
 ## 핵심 기능
 
-- 🔎 **실시간 쿠팡 검색** — 쿠팡 파트너스 Open API로 상품을 검색
-- 🥗 **영양 성분 비교** — 100g 기준 8개 항목을 표로 비교, 항목별 최우수값 강조
+- 🔎 **실시간 쿠팡 검색** (`/`) — 쿠팡 파트너스 Open API로 상품을 검색하고 내장 영양 DB와 매칭해 비교
+- 🛍️ **카테고리 카탈로그 비교** (`/catalog`) — 고정 카테고리(올리브오일/그릭요거트/귀리우유/아몬드버터/프로틴바)별로
+  동기화된 상품을 탭으로 탐색, 가격순 정렬·로켓배송 필터, 최대 4개 비교 + 100g당 정규화 영양 비교 + "영양 균형 추천" 배지
+- 🛠️ **관리자 화면** (`/admin`) — 카테고리별/전체 쿠팡 동기화, 상품별 영양 성분(중량·8대 영양소·원재료명·특징 태그) 직접 입력
 - 🏆 **건강 점수** — 단백질·식이섬유(+) / 당류·포화지방·나트륨·열량(−)을 종합한 0~100점
-- 🛒 **수익화** — "쇼핑하기" 클릭 시 내 파트너스 제휴 링크로 연결되어 수익 발생
+- 🛒 **수익화** — "쇼핑하기"/"쿠팡에서 구매" 클릭 시 내 파트너스 제휴 링크로 연결되어 수익 발생
+
+### 카테고리 카탈로그 동작 방식
+
+쿠팡 API는 영양 성분을 제공하지 않으므로, `/admin`에서 카테고리를 동기화하면 상품 정보(이름·가격·이미지·제휴 링크)만
+저장되고 영양 성분은 `null`로 비워둡니다. 이후 관리자가 `/admin`에서 직접 입력(중량 기준)하면 `/catalog`의 비교 화면에서
+100g당 값으로 자동 정규화되어 표시됩니다. 입력 전 상품에는 "성분 미확인" 뱃지가 붙고, 비교 표에서는 "-"로 표시됩니다.
+
+데이터는 `data/catalog.json`(런타임 생성, git 추적 제외)에 저장됩니다.
 
 ## 동작 방식
 
@@ -48,12 +58,24 @@ Next.js (App Router) · React · TypeScript · Tailwind CSS
 ```
 src/
   app/
-    api/search/route.ts   # 검색 API (쿠팡 호출 + 영양 매칭)
-    page.tsx              # 메인 화면 (검색·결과·비교 트레이)
-  components/             # ProductCard, ComparisonTable, HealthScoreBadge
+    api/
+      search/route.ts             # 자유 검색 API (쿠팡 호출 + 영양 매칭)
+      products/route.ts           # GET /api/products?category=
+      products/[id]/nutrition/    # PUT 영양성분 수동 입력
+      sync/[categoryId]/route.ts  # POST 카테고리 동기화
+      sync/all/route.ts           # POST 전체 동기화 (rate limit 고려)
+      compare/route.ts            # POST 비교 (100g 정규화)
+    page.tsx                      # 자유 검색 화면
+    catalog/page.tsx              # 카테고리 탭 + 카탈로그 비교 화면
+    admin/page.tsx                # 관리자 화면 (동기화 · 영양성분 입력)
+  components/
+    ProductCard, ComparisonTable, HealthScoreBadge       # 자유 검색용
+    CatalogProductCard, CatalogComparisonTable           # 카탈로그용
+    NutritionEditForm                                    # 관리자 인라인 입력 폼
   lib/
-    coupang.ts            # 쿠팡 파트너스 API (HMAC 서명) + 데모 폴백
-    nutrition.ts          # 영양 DB + 매칭 + 건강 점수
+    coupang.ts          # 쿠팡 파트너스 API (HMAC 서명) + 데모 폴백 + 동기화 검색
+    catalog-store.ts    # 카테고리/카탈로그 JSON 저장소 (data/catalog.json)
+    nutrition.ts        # 영양 DB + 매칭 + 건강 점수 (자유 검색용)
     types.ts, format.ts
 ```
 

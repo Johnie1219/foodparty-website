@@ -1,5 +1,5 @@
 import type { ComparisonProduct, NormalizedNutrition } from "@/lib/types";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, healthScoreFromNormalized } from "@/lib/format";
 
 type NumericKey = keyof NormalizedNutrition;
 
@@ -31,6 +31,11 @@ export function CatalogComparisonTable({
 }) {
   const normalized = products.filter((p) => p.normalized);
 
+  const scored = normalized
+    .map((p) => ({ product: p, score: healthScoreFromNormalized(p.normalized!) }))
+    .sort((a, b) => b.score - a.score);
+  const winner = scored.length > 1 ? scored[0] : null;
+
   const bestValues = new Map<NumericKey, number>();
   for (const m of METRICS) {
     if (!m.highlight) continue;
@@ -41,6 +46,16 @@ export function CatalogComparisonTable({
 
   return (
     <div className="space-y-4">
+      {winner && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-sm text-emerald-700">🏆 영양 균형이 가장 좋은 선택 (100g 기준 추정)</p>
+          <p className="mt-1 text-lg font-bold text-emerald-900">{winner.product.productName}</p>
+          <p className="mt-0.5 text-sm text-emerald-700">
+            건강 점수 {winner.score}점 · {formatPrice(winner.product.productPrice)}
+          </p>
+        </div>
+      )}
+
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
         <table className="w-full min-w-[560px] border-collapse text-sm">
           <thead>

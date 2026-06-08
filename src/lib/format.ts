@@ -1,5 +1,20 @@
+import type { NormalizedNutrition } from "./types";
+
 export function formatPrice(won: number): string {
   return won.toLocaleString("ko-KR") + "원";
+}
+
+/** 100g당 정규화 영양성분으로 0~100 건강 점수를 산출한다 (단백질·식이섬유 가점, 당류·포화지방·나트륨·열량 감점) */
+export function healthScoreFromNormalized(n: NormalizedNutrition): number {
+  const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+  const good = clamp01(n.protein / 30) * 0.5 + clamp01(n.fiber / 12) * 0.5;
+  const bad =
+    clamp01(n.sugar / 40) * 0.3 +
+    clamp01(n.saturatedFat / 20) * 0.3 +
+    clamp01(n.sodium / 1500) * 0.25 +
+    clamp01(n.calories / 500) * 0.15;
+  const score = 50 + good * 40 - bad * 45;
+  return Math.round(Math.min(100, Math.max(0, score)));
 }
 
 /** 건강 점수에 따른 등급/색상 */

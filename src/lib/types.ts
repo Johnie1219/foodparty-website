@@ -55,6 +55,12 @@ export interface Category {
   description: string;
 }
 
+export interface CategorySummary extends Category {
+  productCount: number;
+  /** 마지막 동기화 시각 (ISO 문자열, 동기화한 적 없으면 null) */
+  lastSyncedAt: string | null;
+}
+
 /** DB에 저장되는 카탈로그 상품. 영양성분은 관리자가 직접 입력하기 전까지 null */
 export interface CatalogProduct {
   id: number;

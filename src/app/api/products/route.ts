@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { CATEGORIES, getCategoryByName, listProducts } from "@/lib/catalog-store";
+import { getCategoryByName, listCategorySummaries, listProducts } from "@/lib/catalog-store";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
-    categories: CATEGORIES,
+    categories: listCategorySummaries(),
     products: listProducts(categoryId),
   });
 }

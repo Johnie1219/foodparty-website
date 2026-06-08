@@ -2,18 +2,38 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import type { CatalogProduct, Category, ComparisonProduct } from "@/lib/types";
+import type { CatalogProduct, CategorySummary, ComparisonProduct } from "@/lib/types";
 import { CatalogProductCard } from "@/components/CatalogProductCard";
 import { CatalogComparisonTable } from "@/components/CatalogComparisonTable";
 
 const MAX_COMPARE = 4;
 
+type SortOption = "default" | "priceAsc" | "priceDesc";
+
+const SORT_LABELS: Record<SortOption, string> = {
+  default: "기본순",
+  priceAsc: "낮은 가격순",
+  priceDesc: "높은 가격순",
+};
+
+function formatSyncedAt(iso: string | null): string {
+  if (!iso) return "동기화 기록 없음";
+  return `마지막 동기화 ${new Date(iso).toLocaleString("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })}`;
+}
+
 export default function CatalogPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategorySummary[]>([]);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [products, setProducts] = useState<CatalogProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sort, setSort] = useState<SortOption>("default");
+  const [rocketOnly, setRocketOnly] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [comparison, setComparison] = useState<ComparisonProduct[] | null>(null);
@@ -24,6 +44,8 @@ export default function CatalogPage() {
     setLoading(true);
     setError(null);
     setComparison(null);
+    setSort("default");
+    setRocketOnly(false);
     try {
       const res = await fetch(`/api/products?category=${encodeURIComponent(categoryName)}`);
       const json = await res.json();
@@ -43,7 +65,7 @@ export default function CatalogPage() {
     fetch("/api/products")
       .then((res) => res.json())
       .then((json) => {
-        const cats: Category[] = json.categories ?? [];
+        const cats: CategorySummary[] = json.categories ?? [];
         setCategories(cats);
         if (cats.length > 0) setActiveCategory(cats[0].name);
       })
@@ -56,6 +78,15 @@ export default function CatalogPage() {
       loadProducts(activeCategory);
     }
   }, [activeCategory, loadProducts]);
+
+  const visibleProducts = (() => {
+    let list = rocketOnly ? products.filter((p) => p.isRocket) : products;
+    if (sort === "priceAsc") list = [...list].sort((a, b) => a.productPrice - b.productPrice);
+    else if (sort === "priceDesc") list = [...list].sort((a, b) => b.productPrice - a.productPrice);
+    return list;
+  })();
+
+  const activeCategorySummary = categories.find((c) => c.name === activeCategory) ?? null;
 
   const toggleSelect = useCallback((p: CatalogProduct) => {
     setSelectedIds((prev) => {
@@ -128,9 +159,13 @@ export default function CatalogPage() {
                 }`}
               >
                 {c.name}
+                <span className="ml-1.5 text-xs font-normal opacity-60">{c.productCount}</span>
               </button>
             ))}
           </div>
+          {activeCategorySummary && (
+            <p className="mt-2 text-xs text-slate-400">{formatSyncedAt(activeCategorySummary.lastSyncedAt)}</p>
+          )}
         </div>
       </header>
 
@@ -150,6 +185,35 @@ export default function CatalogPage() {
           </section>
         )}
 
+        {!loading && products.length > 0 && (
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white p-1">
+              {(Object.keys(SORT_LABELS) as SortOption[]).map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => setSort(opt)}
+                  className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    sort === opt ? "bg-emerald-600 text-white" : "text-slate-500 hover:text-emerald-700"
+                  }`}
+                >
+                  {SORT_LABELS[opt]}
+                </button>
+              ))}
+            </div>
+            <label className="flex cursor-pointer items-center gap-1.5 text-sm text-slate-600">
+              <input
+                type="checkbox"
+                checked={rocketOnly}
+                onChange={(e) => setRocketOnly(e.target.checked)}
+                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              로켓배송만 보기
+            </label>
+            <span className="text-xs text-slate-400">{visibleProducts.length}개 상품</span>
+          </div>
+        )}
+
         {loading ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -163,9 +227,13 @@ export default function CatalogPage() {
               아직 동기화된 상품이 없습니다. <Link href="/admin" className="font-semibold text-emerald-600 hover:underline">관리자 화면</Link>에서 쿠팡 동기화를 실행해보세요.
             </p>
           </div>
+        ) : visibleProducts.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center text-slate-500">
+            조건에 맞는 상품이 없습니다.
+          </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {products.map((p) => (
+            {visibleProducts.map((p) => (
               <CatalogProductCard
                 key={p.id}
                 product={p}

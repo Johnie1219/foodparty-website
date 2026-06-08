@@ -47,14 +47,21 @@ export interface NutritionInput {
 interface DBShape {
   nextId: number;
   products: CatalogProduct[];
+  /** 카테고리별 마지막 동기화 시각 (ISO 문자열) */
+  syncedAt: Record<number, string>;
 }
 
 function readDB(): DBShape {
   try {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
-    return JSON.parse(raw) as DBShape;
+    const parsed = JSON.parse(raw) as Partial<DBShape>;
+    return {
+      nextId: parsed.nextId ?? 1,
+      products: parsed.products ?? [],
+      syncedAt: parsed.syncedAt ?? {},
+    };
   } catch {
-    return { nextId: 1, products: [] };
+    return { nextId: 1, products: [], syncedAt: {} };
   }
 }
 
@@ -78,6 +85,22 @@ export function getProductsByIds(ids: number[]): CatalogProduct[] {
   const { products } = readDB();
   const map = new Map(products.map((p) => [p.id, p]));
   return ids.map((id) => map.get(id)).filter((p): p is CatalogProduct => Boolean(p));
+}
+
+export interface CategorySummary extends Category {
+  productCount: number;
+  /** 마지막 동기화 시각 (ISO 문자열, 동기화한 적 없으면 null) */
+  lastSyncedAt: string | null;
+}
+
+/** 카테고리별 상품 수 + 마지막 동기화 시각을 함께 반환한다 (메인/관리자 화면용) */
+export function listCategorySummaries(): CategorySummary[] {
+  const db = readDB();
+  return CATEGORIES.map((c) => ({
+    ...c,
+    productCount: db.products.filter((p) => p.categoryId === c.id).length,
+    lastSyncedAt: db.syncedAt[c.id] ?? null,
+  }));
 }
 
 /** product_name 기준 upsert. 영양성분 필드는 null로 저장한다 (자동 수집 불가) */
@@ -118,6 +141,7 @@ export function upsertSyncedProducts(categoryId: number, items: SyncedItem[]): n
       });
     }
   }
+  db.syncedAt[categoryId] = new Date().toISOString();
   writeDB(db);
   return items.length;
 }
