@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "헬스픽 — 더 건강한 음식 고르기",
+  title: "Ingredient Coupang — Smarter Food Choices",
   description:
     "쿠팡 실시간 상품의 주요 영양 성분을 비교해 더 건강한 음식을 골라보세요.",
 };

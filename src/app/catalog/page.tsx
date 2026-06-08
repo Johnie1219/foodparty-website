@@ -133,7 +133,7 @@ export default function CatalogPage() {
       <section className="tile-section tile-parchment">
         <div className="mx-auto max-w-6xl px-4">
           <h1 className="text-display-lg text-[var(--color-ink)]">
-            헬스픽 카탈로그<span className="text-[var(--color-primary)]">.</span>
+            Ingredient Coupang — Catalog<span className="text-[var(--color-primary)]">.</span>
           </h1>
           <p className="text-body-ink mt-2 max-w-xl text-[var(--color-ink-muted-48)]">
             카테고리별 쿠팡 상품의 영양 성분을 한눈에 비교하고 더 건강한 선택을 해보세요.

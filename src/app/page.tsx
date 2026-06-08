@@ -105,7 +105,7 @@ export default function Home() {
         <section className="tile-section tile-dark">
           <div className="mx-auto max-w-6xl px-4">
             <h2 className="text-display-lg text-white">
-              헬스픽이 하는 일
+              What Ingredient Coupang Does
             </h2>
             <p className="text-body-ink mt-3 max-w-lg text-[var(--color-body-muted)]">
               쿠팡 파트너스 API로 실시간 상품을 가져와 영양 성분을 한 화면에 나란히 비교합니다.

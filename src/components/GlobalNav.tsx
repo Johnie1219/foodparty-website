@@ -16,7 +16,7 @@ export function GlobalNav() {
     <nav className="global-nav sticky top-0 z-30">
       <div className="mx-auto flex h-full max-w-6xl items-center justify-between px-4">
         <Link href="/" className="font-semibold tracking-tight text-white">
-          헬스픽
+          Ingredient Coupang
         </Link>
         <div className="flex items-center gap-5">
           {LINKS.map((l) => {
