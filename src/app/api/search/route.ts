@@ -20,7 +20,6 @@ export async function GET(request: Request) {
       live: result.live,
       products: result.products,
     };
-    // 개발/디버깅용: 에러 정보 포함
     if ("error" in result) body._debug = (result as Record<string, unknown>).error;
     return NextResponse.json(body);
   } catch (err) {

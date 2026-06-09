@@ -146,8 +146,7 @@ export async function searchProducts(
       return { live: true, products };
     } catch (err) {
       console.error("[coupang] live search failed:", err);
-      // 에러 메시지를 응답에 포함해 디버깅 용이하게
-      return { live: true, products: [], ...(process.env.NODE_ENV !== "production" ? { error: String(err) } : {}) };
+      return { live: true, products: [], error: String(err) };
     }
   }
   return { live: false, products: demoSearch(keyword, limit) };
