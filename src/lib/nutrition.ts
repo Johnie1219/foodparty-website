@@ -53,7 +53,8 @@ export const NUTRITION_DB: Record<string, NutritionRow> = {
 };
 
 /** 상품명에서 가장 잘 맞는 영양 정보를 찾는다 (가장 긴 키워드 우선). */
-export function matchNutrition(productName: string): Nutrition | null {
+export function matchNutrition(productName: string | null | undefined): Nutrition | null {
+  if (!productName) return null;
   const name = productName.replace(/\s+/g, "");
   let best: { key: string; len: number } | null = null;
 

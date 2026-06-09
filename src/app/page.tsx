@@ -12,7 +12,7 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<SearchResponse | null>(null);
+  const [result, setResult] = useState<(SearchResponse & { _debug?: unknown }) | null>(null);
   const [selected, setSelected] = useState<Product[]>([]);
   const compareRef = useRef<HTMLDivElement>(null);
 
@@ -182,7 +182,12 @@ export default function Home() {
               &ldquo;{result.keyword}&rdquo; 검색 결과
             </h2>
             {result.products.length === 0 ? (
-              <p className="text-[var(--color-ink-muted-48)]">검색 결과가 없습니다.</p>
+              <div>
+                <p className="text-[var(--color-ink-muted-48)]">검색 결과가 없습니다.</p>
+                {result._debug && (
+                  <pre className="mt-3 rounded-xl bg-rose-50 p-3 text-xs text-rose-700 whitespace-pre-wrap">{String(result._debug)}</pre>
+                )}
+              </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {result.products.map((p) => (

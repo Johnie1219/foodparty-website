@@ -109,7 +109,14 @@ function toProduct(item: CoupangApiItem): Product {
 
 async function liveSearch(keyword: string, limit: number): Promise<Product[]> {
   const items = await fetchCoupangSearch(keyword, limit);
-  return items.map(toProduct);
+  return items.flatMap((item) => {
+    try {
+      return [toProduct(item)];
+    } catch (e) {
+      console.error("[coupang] toProduct failed:", e, item);
+      return [];
+    }
+  });
 }
 
 export interface SyncedCoupangItem {
