@@ -2,48 +2,34 @@ import crypto from "crypto";
 import type { Product } from "./types";
 import { matchNutrition, healthScore } from "./nutrition";
 
-/**
- * 쿠팡 파트너스 Open API 클라이언트.
- * 환경변수에 키가 있으면 실시간 검색, 없으면 데모 데이터를 반환한다.
- *
- * 필요한 환경변수:
- *   COUPANG_ACCESS_KEY   파트너스 액세스 키
- *   COUPANG_SECRET_KEY   파트너스 시크릿 키
- *   COUPANG_SUB_ID       (선택) 채널/서브 아이디 트래킹 코드
- */
-
 const DOMAIN = "https://api-gateway.coupang.com";
-const SEARCH_PATH =
-  "/v2/providers/affiliate_open_api/apis/openapi/v1/products/search";
+const SEARCH_PATH = "/v2/providers/affiliate_open_api/apis/openapi/v1/products/search";
 
 export function hasCoupangKeys(): boolean {
   return Boolean(process.env.COUPANG_ACCESS_KEY && process.env.COUPANG_SECRET_KEY);
 }
 
-/** 쿠팡 파트너스 HMAC 서명 Authorization 헤더 생성 */
+/** yyMMdd'T'HHmmss'Z' (UTC) */
+function getSignedDate(): string {
+  const now = new Date();
+  const yy = String(now.getUTCFullYear()).slice(2);
+  const MM = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(now.getUTCDate()).padStart(2, "0");
+  const HH = String(now.getUTCHours()).padStart(2, "0");
+  const mm = String(now.getUTCMinutes()).padStart(2, "0");
+  const ss = String(now.getUTCSeconds()).padStart(2, "0");
+  return `${yy}${MM}${dd}T${HH}${mm}${ss}Z`;
+}
+
 function buildAuthHeader(method: string, path: string, query: string): string {
   const accessKey = process.env.COUPANG_ACCESS_KEY!;
   const secretKey = process.env.COUPANG_SECRET_KEY!;
-
-  // 형식: yyMMdd'T'HHmmss'Z' (GMT)
-  // toISOString: 2026-06-08T01:02:03.000Z -> 260608T010203Z
-  const iso = new Date().toISOString(); // YYYY-MM-DDTHH:mm:ss.sssZ
-  const signedDate =
-    iso.slice(2, 4) + // yy
-    iso.slice(5, 7) + // MM
-    iso.slice(8, 10) + // dd
-    "T" +
-    iso.slice(11, 13) + // HH
-    iso.slice(14, 16) + // mm
-    iso.slice(17, 19) + // ss
-    "Z";
-
+  const signedDate = getSignedDate();
   const message = signedDate + method + path + query;
   const signature = crypto
     .createHmac("sha256", secretKey)
     .update(message)
     .digest("hex");
-
   return `CEA algorithm=HmacSHA256, access-key=${accessKey}, signed-date=${signedDate}, signature=${signature}`;
 }
 
@@ -57,60 +43,53 @@ interface CoupangApiItem {
   isFreeShipping: boolean;
 }
 
-/** 쿠팡 파트너스 Search API 호출 (서명/요청 공통 로직) */
 async function fetchCoupangSearch(keyword: string, limit: number): Promise<CoupangApiItem[]> {
   const subId = process.env.COUPANG_SUB_ID;
-  const params = new URLSearchParams({ keyword, limit: String(limit) });
-  if (subId) params.set("subId", subId);
-  const query = params.toString();
+
+  // 파라미터를 알파벳순으로 정렬 (HMAC 서명 안정성)
+  const paramObj: Record<string, string> = { keyword, limit: String(limit) };
+  if (subId) paramObj.subId = subId;
+  const sortedKeys = Object.keys(paramObj).sort();
+  const query = sortedKeys.map((k) => `${k}=${encodeURIComponent(paramObj[k])}`).join("&");
 
   const auth = buildAuthHeader("GET", SEARCH_PATH, query);
-  const res = await fetch(`${DOMAIN}${SEARCH_PATH}?${query}`, {
+  const url = `${DOMAIN}${SEARCH_PATH}?${query}`;
+
+  console.log("[coupang] request url:", url);
+
+  const res = await fetch(url, {
     method: "GET",
-    headers: { Authorization: auth, "Content-Type": "application/json" },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json;charset=UTF-8",
+    },
     cache: "no-store",
   });
 
+  const text = await res.text();
+  console.log("[coupang] status:", res.status, "body:", text.slice(0, 500));
+
   if (!res.ok) {
-    throw new Error(`Coupang API error ${res.status}: ${await res.text()}`);
+    throw new Error(`Coupang API ${res.status}: ${text}`);
   }
 
-  const json = (await res.json()) as { data?: { productData?: CoupangApiItem[] } };
-  return json.data?.productData ?? [];
-}
-
-/** 실시간 쿠팡 검색 (영양정보 매칭 포함, 자유 검색용) */
-async function liveSearch(keyword: string, limit: number): Promise<Product[]> {
-  const items = await fetchCoupangSearch(keyword, limit);
-  return items.map(toProduct);
-}
-
-export interface SyncedCoupangItem {
-  productName: string;
-  productPrice: number;
-  productImage: string;
-  productUrl: string;
-  isRocket: boolean;
-  isFreeShipping: boolean;
-}
-
-/**
- * 카테고리 동기화용 검색. 영양성분은 쿠팡 API 응답에 없으므로 매칭하지 않고
- * 그대로 DB upsert 가능한 형태로 반환한다 (영양성분은 null로 저장됨).
- */
-export async function syncSearch(keyword: string, limit: number): Promise<SyncedCoupangItem[]> {
-  if (!hasCoupangKeys()) {
-    throw new Error("쿠팡 파트너스 API 키(COUPANG_ACCESS_KEY/COUPANG_SECRET_KEY)가 설정되지 않았습니다.");
+  let json: unknown;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error(`Coupang API non-JSON response: ${text.slice(0, 200)}`);
   }
-  const items = await fetchCoupangSearch(keyword, limit);
-  return items.map((item) => ({
-    productName: item.productName,
-    productPrice: item.productPrice,
-    productImage: item.productImage,
-    productUrl: item.productUrl,
-    isRocket: item.isRocket,
-    isFreeShipping: item.isFreeShipping,
-  }));
+
+  // 응답 구조 유연하게 처리
+  const data = (json as Record<string, unknown>);
+  const productData =
+    (data?.data as Record<string, unknown>)?.productData ??
+    (data?.productData) ??
+    [];
+
+  console.log("[coupang] productData count:", Array.isArray(productData) ? productData.length : "not array");
+
+  return Array.isArray(productData) ? (productData as CoupangApiItem[]) : [];
 }
 
 function toProduct(item: CoupangApiItem): Product {
@@ -128,6 +107,35 @@ function toProduct(item: CoupangApiItem): Product {
   };
 }
 
+async function liveSearch(keyword: string, limit: number): Promise<Product[]> {
+  const items = await fetchCoupangSearch(keyword, limit);
+  return items.map(toProduct);
+}
+
+export interface SyncedCoupangItem {
+  productName: string;
+  productPrice: number;
+  productImage: string;
+  productUrl: string;
+  isRocket: boolean;
+  isFreeShipping: boolean;
+}
+
+export async function syncSearch(keyword: string, limit: number): Promise<SyncedCoupangItem[]> {
+  if (!hasCoupangKeys()) {
+    throw new Error("쿠팡 파트너스 API 키가 설정되지 않았습니다.");
+  }
+  const items = await fetchCoupangSearch(keyword, limit);
+  return items.map((item) => ({
+    productName: item.productName,
+    productPrice: item.productPrice,
+    productImage: item.productImage,
+    productUrl: item.productUrl,
+    isRocket: item.isRocket,
+    isFreeShipping: item.isFreeShipping,
+  }));
+}
+
 export async function searchProducts(
   keyword: string,
   limit = 12
@@ -137,23 +145,23 @@ export async function searchProducts(
       const products = await liveSearch(keyword, limit);
       return { live: true, products };
     } catch (err) {
-      console.error("[coupang] live search failed, falling back to demo:", err);
+      console.error("[coupang] live search failed:", err);
+      // 에러 메시지를 응답에 포함해 디버깅 용이하게
+      return { live: true, products: [], ...(process.env.NODE_ENV !== "production" ? { error: String(err) } : {}) };
     }
   }
   return { live: false, products: demoSearch(keyword, limit) };
 }
 
 // ---------------------------------------------------------------------------
-// 데모 데이터 (키가 없을 때). 영양 DB 키워드 기반으로 그럴듯한 상품을 생성한다.
+// 데모 데이터
 // ---------------------------------------------------------------------------
-
 import { NUTRITION_DB } from "./nutrition";
 
 function demoSearch(keyword: string, limit: number): Product[] {
   const kw = keyword.replace(/\s+/g, "");
   const tracking = process.env.COUPANG_SUB_ID ?? "demo";
 
-  // 검색어와 관련된 영양 DB 키워드 추출
   const keys = Object.keys(NUTRITION_DB).filter(
     (k) =>
       k.includes(kw) ||
@@ -185,7 +193,7 @@ function demoSearch(keyword: string, limit: number): Product[] {
       healthScore: nutrition ? healthScore(nutrition) : null,
     });
     i++;
-    if (i > limit * 3) break; // 안전장치
+    if (i > limit * 3) break;
   }
 
   return products;
